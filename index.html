@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking de jogadores | Agibank</title>
+
+  <style>
+    :root {
+      --azul-escuro: #071b4a;
+      --azul: #075ff5;
+      --azul-claro: #eaf2ff;
+      --verde: #8bdc3c;
+      --fundo: #f4f7fb;
+      --texto: #17233c;
+      --texto-suave: #53627a;
+      --linha: #dce4ef;
+      --branco: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+    }
+
+    .pagina {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 34px 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: var(--azul-escuro);
+      font-size: 42px;
+    }
+
+    h2 {
+      color: var(--azul-escuro);
+    }
+
+    .descricao {
+      margin: 0;
+      color: var(--texto-suave);
+      line-height: 1.5;
+      font-size: 17px;
+    }
+
+    .linha-verde {
+      width: 68px;
+      height: 6px;
+      margin: 18px 0 22px;
+      border-radius: 8px;
+      background: var(--verde);
+    }
+
+    .painel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      align-items: end;
+      margin: 26px 0 18px;
+      padding: 22px;
+      background: var(--branco);
+      border-radius: 16px;
+      border-top: 5px solid var(--verde);
+      box-shadow: 0 5px 16px rgba(7, 27, 74, 0.09);
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-width: 240px;
+    }
+
+    label {
+      font-weight: bold;
+      color: var(--azul-escuro);
+    }
+
+    select {
+      padding: 11px;
+      border: 1px solid #b9c9df;
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--texto);
+      background: var(--branco);
+    }
+
+    button {
+      padding: 11px 20px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--azul);
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--azul-escuro);
+    }
+
+    .status {
+      margin: 16px 0;
+      padding: 13px 16px;
+      border-left: 5px solid var(--verde);
+      border-radius: 8px;
+      background: var(--azul-claro);
+      color: var(--azul-escuro);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      padding: 20px;
+      background: var(--branco);
+      border-radius: 14px;
+      box-shadow: 0 5px 16px rgba(7, 27, 74, 0.08);
+    }
+
+    .card strong {
+      display: block;
+      margin-top: 8px;
+      color: var(--azul);
+      font-size: 29px;
+    }
+
+    .tabela-container,
+    .grafico {
+      overflow-x: auto;
+      background: var(--branco);
+      border-radius: 14px;
+      box-shadow: 0 5px 16px rgba(7, 27, 74, 0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--linha);
+    }
+
+    th {
+      background: var(--azul-escuro);
+      color: var(--branco);
+    }
+
+    tr:hover td {
+      background: #f3f7ff;
+    }
+
+    .posicao {
+      color: var(--azul);
+      font-weight: bold;
+    }
+
+    .grafico {
+      margin-top: 24px;
+      padding: 22px;
+    }
+
+    #grafico-svg {
+      display: block;
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+    }
+
+    .sem-dados {
+      padding: 24px;
+      text-align: center;
+      color: var(--texto-suave);
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .painel {
+        align-items: stretch;
+      }
+
+      .campo {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="pagina">
+
+    <h1>Ranking de jogadores</h1>
+
+    <div class="linha-verde"></div>
+
+    <p class="descricao">
+      Comparação de gols por 90 minutos usando os dados do desafio da Copa do Mundo 2026.
+    </p>
+
+    <section class="painel">
+      <div class="campo">
+        <label for="selecao">Seleção</label>
+
+        <select id="selecao">
+          <option value="todas">Todas as seleções</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="quantidade">Quantidade de jogadores</label>
+
+        <select id="quantidade">
+          <option value="5">5 jogadores</option>
+          <option value="10" selected>10 jogadores</option>
+          <option value="20">20 jogadores</option>
+        </select>
+      </div>
+
+      <button id="mostrar">
+        Atualizar ranking
+      </button>
+    </section>
+
+    <div id="status" class="status">
+      Carregando os dados...
+    </div>
+
+    <section class="cards">
+      <div class="card">
+        Jogadores carregados
+        <strong id="total-jogadores">0</strong>
+      </div>
+
+      <div class="card">
+        Jogadores exibidos
+        <strong id="total-exibidos">0</strong>
+      </div>
+
+      <div class="card">
+        Maior valor de gols por 90
+        <strong id="maior-valor">0,00</strong>
+      </div>
+    </section>
+
+    <section class="tabela-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Posição</th>
+            <th>Jogador</th>
+            <th>Seleção</th>
+            <th>Minutos</th>
+            <th>Gols</th>
+            <th>Gols por 90</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabela">
+          <tr>
+            <td colspan="6" class="sem-dados">
+              Carregando os dados...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grafico">
+      <h2>Visualização rápida</h2>
+
+      <svg
+        id="grafico-svg"
+        viewBox="0 0 900 520"
+        role="img"
+        aria-label="Gráfico de gols por 90 minutos"
+      >
+        <text
+          x="450"
+          y="260"
+          text-anchor="middle"
+          fill="#53627a"
+          font-size="18"
+        >
+          Carregando os dados...
+        </text>
+      </svg>
+    </section>
+
+  </main>
+
+  <script>
+    let jogadores = [];
+
+    const selecaoInput =
+      document.getElementById("selecao");
+
+    const quantidadeInput =
+      document.getElementById("quantidade");
+
+    const botaoMostrar =
+      document.getElementById("mostrar");
+
+    const status =
+      document.getElementById("status");
+
+    const tabela =
+      document.getElementById("tabela");
+
+    const graficoSvg =
+      document.getElementById("grafico-svg");
+
+    const totalJogadores =
+      document.getElementById("total-jogadores");
+
+    const totalExibidos =
+      document.getElementById("total-exibidos");
+
+    const maiorValor =
+      document.getElementById("maior-valor");
+
+    botaoMostrar.addEventListener(
+      "click",
+      atualizarPagina
+    );
+
+    async function carregarDados() {
+      try {
+        const resposta = await fetch(
+          "ranking_jogadores.json"
+        );
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Arquivo JSON não encontrado."
+          );
+        }
+
+        jogadores = await resposta.json();
+
+        jogadores = jogadores
+          .filter(
+            jogador => jogador.minutos_totais > 0
+          )
+          .sort(
+            (a, b) => b.goals_per90 - a.goals_per90
+          );
+
+        preencherSelecoes();
+        atualizarPagina();
+
+        status.textContent =
+          "Dados carregados automaticamente. Escolha os filtros e clique em Atualizar ranking.";
+      } catch (erro) {
+        status.textContent =
+          "Não foi possível carregar o arquivo ranking_jogadores.json. Confira se ele está na mesma pasta do index.html.";
+      }
+    }
+
+    function preencherSelecoes() {
+      const selecoes = [
+        ...new Set(
+          jogadores.map(
+            jogador => jogador.team
+          )
+        )
+      ].sort();
+
+      selecaoInput.innerHTML =
+        '<option value="todas">Todas as seleções</option>';
+
+      selecoes.forEach(selecao => {
+        const opcao =
+          document.createElement("option");
+
+        opcao.value = selecao;
+        opcao.textContent = selecao;
+
+        selecaoInput.appendChild(opcao);
+      });
+    }
+
+    function atualizarPagina() {
+      const selecaoEscolhida =
+        selecaoInput.value;
+
+      const quantidade =
+        Number(quantidadeInput.value);
+
+      let resultado = jogadores;
+
+      if (selecaoEscolhida !== "todas") {
+        resultado = resultado.filter(
+          jogador =>
+            jogador.team === selecaoEscolhida
+        );
+      }
+
+      resultado = resultado
+        .sort(
+          (a, b) => b.goals_per90 - a.goals_per90
+        )
+        .slice(0, quantidade);
+
+      mostrarCards(resultado);
+      mostrarTabela(resultado);
+      mostrarGraficoSvg(resultado);
+    }
+
+    function mostrarCards(resultado) {
+      totalJogadores.textContent =
+        jogadores.length;
+
+      totalExibidos.textContent =
+        resultado.length;
+
+      if (resultado.length === 0) {
+        maiorValor.textContent = "0,00";
+        return;
+      }
+
+      maiorValor.textContent =
+        formatarNumero(
+          resultado[0].goals_per90
+        );
+    }
+
+    function mostrarTabela(resultado) {
+      tabela.innerHTML = "";
+
+      if (resultado.length === 0) {
+        tabela.innerHTML = `
+          <tr>
+            <td colspan="6" class="sem-dados">
+              Nenhum jogador encontrado.
+            </td>
+          </tr>
+        `;
+
+        return;
+      }
+
+      resultado.forEach((jogador, indice) => {
+        const linha =
+          document.createElement("tr");
+
+        linha.innerHTML = `
+          <td class="posicao">${indice + 1}º</td>
+          <td>${jogador.player_name}</td>
+          <td>${jogador.team}</td>
+          <td>${jogador.minutos_totais}</td>
+          <td>${jogador.gols_totais}</td>
+          <td>${formatarNumero(jogador.goals_per90)}</td>
+        `;
+
+        tabela.appendChild(linha);
+      });
+    }
+
+    function mostrarGraficoSvg(resultado) {
+      const namespaceSvg =
+        "http://www.w3.org/2000/svg";
+
+      const largura = 900;
+      const altura = 520;
+      const margemEsquerda = 220;
+      const margemDireita = 80;
+      const margemSuperior = 40;
+      const alturaBarra = 28;
+      const espacoEntreBarras = 18;
+
+      graficoSvg.innerHTML = "";
+
+      if (resultado.length === 0) {
+        const mensagem =
+          document.createElementNS(
+            namespaceSvg,
+            "text"
+          );
+
+        mensagem.setAttribute(
+          "x",
+          largura / 2
+        );
+
+        mensagem.setAttribute(
+          "y",
+          altura / 2
+        );
+
+        mensagem.setAttribute(
+          "text-anchor",
+          "middle"
+        );
+
+        mensagem.setAttribute(
+          "fill",
+          "#53627a"
+        );
+
+        mensagem.setAttribute(
+          "font-size",
+          "18"
+        );
+
+        mensagem.textContent =
+          "Nenhum jogador encontrado.";
+
+        graficoSvg.appendChild(mensagem);
+        return;
+      }
+
+      const maiorValor = Math.max(
+        ...resultado.map(
+          jogador => jogador.goals_per90
+        )
+      );
+
+      const larguraMaxima =
+        largura -
+        margemEsquerda -
+        margemDireita;
+
+      resultado.forEach((jogador, indice) => {
+        const y =
+          margemSuperior +
+          indice *
+            (alturaBarra + espacoEntreBarras);
+
+        const larguraBarra =
+          (jogador.goals_per90 / maiorValor) *
+          larguraMaxima;
+
+        const nome =
+          document.createElementNS(
+            namespaceSvg,
+            "text"
+          );
+
+        nome.setAttribute(
+          "x",
+          margemEsquerda - 12
+        );
+
+        nome.setAttribute(
+          "y",
+          y + 20
+        );
+
+        nome.setAttribute(
+          "text-anchor",
+          "end"
+        );
+
+        nome.setAttribute(
+          "fill",
+          "#17233c"
+        );
+
+        nome.setAttribute(
+          "font-size",
+          "16"
+        );
+
+        nome.textContent =
+          jogador.player_name;
+
+        graficoSvg.appendChild(nome);
+
+        const fundo =
+          document.createElementNS(
+            namespaceSvg,
+            "rect"
+          );
+
+        fundo.setAttribute(
+          "x",
+          margemEsquerda
+        );
+
+        fundo.setAttribute(
+          "y",
+          y
+        );
+
+        fundo.setAttribute(
+          "width",
+          larguraMaxima
+        );
+
+        fundo.setAttribute(
+          "height",
+          alturaBarra
+        );
+
+        fundo.setAttribute(
+          "rx",
+          "14"
+        );
+
+        fundo.setAttribute(
+          "fill",
+          "#dfe6f0"
+        );
+
+        graficoSvg.appendChild(fundo);
+
+        const barra =
+          document.createElementNS(
+            namespaceSvg,
+            "rect"
+          );
+
+        barra.setAttribute(
+          "x",
+          margemEsquerda
+        );
+
+        barra.setAttribute(
+          "y",
+          y
+        );
+
+        barra.setAttribute(
+          "width",
+          larguraBarra
+        );
+
+        barra.setAttribute(
+          "height",
+          alturaBarra
+        );
+
+        barra.setAttribute(
+          "rx",
+          "14"
+        );
+
+        barra.setAttribute(
+          "fill",
+          "#075ff5"
+        );
+
+        graficoSvg.appendChild(barra);
+
+        const valor =
+          document.createElementNS(
+            namespaceSvg,
+            "text"
+          );
+
+        valor.setAttribute(
+          "x",
+          margemEsquerda +
+            larguraMaxima +
+            12
+        );
+
+        valor.setAttribute(
+          "y",
+          y + 20
+        );
+
+        valor.setAttribute(
+          "fill",
+          "#071b4a"
+        );
+
+        valor.setAttribute(
+          "font-size",
+          "16"
+        );
+
+        valor.setAttribute(
+          "font-weight",
+          "bold"
+        );
+
+        valor.textContent =
+          formatarNumero(
+            jogador.goals_per90
+          );
+
+        graficoSvg.appendChild(valor);
+      });
+    }
+
+    function formatarNumero(numero) {
+      return Number(numero)
+        .toFixed(2)
+        .replace(".", ",");
+    }
+
+    carregarDados();
+  </script>
+</body>
+</html>

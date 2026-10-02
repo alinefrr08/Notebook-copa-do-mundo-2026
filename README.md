@@ -1,4 +1,4 @@
-**# Análise de Performance — Copa do Mundo 2026
+# Análise de Performance — Copa do Mundo 2026
 
 ## Sobre o projeto
 
@@ -159,4 +159,4 @@ A base apresenta indícios de problemas na relação entre jogadores, partidas, 
 
 Por isso, os resultados devem ser usados como uma análise exploratória dos dados disponíveis.
 
-Antes de usar os resultados como informação oficial do torneio, seria necessário confirmar como a base foi criada e comparar os registros com a fonte original.**
+Antes de usar os resultados como informação oficial do torneio, seria necessário confirmar como a base foi criada e comparar os registros com a fonte original.
